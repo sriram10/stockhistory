@@ -2,6 +2,7 @@ import { Button, Container, Text } from '@chakra-ui/react'
 import { signOut } from 'firebase/auth'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import React, { useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async';
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useNavigate } from 'react-router-dom'
 import { auth, db } from '../../firebase'
@@ -29,6 +30,9 @@ const Dashboard = () => {
 
   return (
       <Container centerContent>
+          <Helmet>
+            <title>Home</title>
+          </Helmet>
           <Text fontSize='4xl'>Welcome Back, {userData?.name}!</Text>
           <Button onClick={() => signOut(auth)}>SignOut</Button>
       </Container>

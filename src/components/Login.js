@@ -21,7 +21,7 @@ const Login = () => {
       <Box width='100%' p='16' height='100vh' overflow='hidden'>
         <Img src={require('../images/bannerImage.png')} objectFit="cover" />
       </Box>
-      <Box width='100%' display='flex' flexDirection='column' justifyContent='center' back>
+      <Box width='100%' display='flex' flexDirection='column' justifyContent='center' back='true'>
         <div>
           <Text fontSize='2xl' color='rgb(0,0,0,0.7)' fontWeight='bold'>Get more things done with us!</Text>
         </div>
