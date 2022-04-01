@@ -1,25 +1,84 @@
-import { Box, Button, Container, FormControl, FormLabel, Img, Input, InputGroup, InputRightElement, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react'
+import { Box, Button, FormControl, FormLabel, Img, Input, InputGroup, InputRightElement, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-import { auth, logInWithEmail, registerWithEmail } from '../firebase';
+import { auth, db } from '../../configs/firebaseConfig';
 import { useAuthState } from "react-firebase-hooks/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { addDoc, collection } from 'firebase/firestore';
 
 const Login = () => {
   const [show, setShow] = useState(false);
   const [uname, setUname] = useState();
   const [password, setPassword] = useState();
   const [name, setName] = useState();
-  const [user, loading, error] = useAuthState(auth)
+  const [loginLoading, setLoginLoading] = useState(false);
   const navigate = useNavigate();
+  const [user, loading, error] = useAuthState(auth)
+  const toast = useToast()
 
   useEffect(() => {
     if(user) navigate('/dashboard')
-  }, [user, loading])
+    if(error) console.log(error)
+  }, [user, loading, error])
+
+    const handleLogin = () => {
+      setLoginLoading(true)
+      signInWithEmailAndPassword(auth, uname, password)
+        .then((cred) => {
+            setLoginLoading(false)
+            return cred
+        })
+        .catch((error) => {
+            setLoginLoading(false)
+            toast({
+                title: 'Error!',
+                description: error.code,
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+                position: 'top-right'
+            })
+        })
+    }
+
+    const handleSignup = () => {
+        setLoginLoading(true)
+        createUserWithEmailAndPassword(auth, uname, password)
+            .then((cred) => {
+                setLoginLoading(false)
+                toast({
+                    title: 'User Registered',
+                    description: 'user registration success',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                    position: 'top-right'
+                })
+                let user = cred.user
+                addDoc(collection(db, "users"), {
+                    uid: user.uid,
+                    name,
+                    authProvider: 'local',
+                    uname
+                })
+            })
+            .catch((error) => {
+                setLoginLoading(false)
+                toast({
+                    title: 'Error:',
+                    description: error.code,
+                    status: 'error',
+                    duration: 3000,
+                    isClosable: true,
+                    position: 'top-right'
+                })
+            })
+    }
 
   return (
     <Box height='100vh' display='flex'>
-      <Box width='100%' p='16' height='100vh' overflow='hidden'>
-        <Img src={require('../images/bannerImage.png')} objectFit="cover" />
+      <Box width={['0%', '100%']} p='16' height='100vh' overflow='hidden'>
+        <Img src={'https://user-images.githubusercontent.com/83634694/160562616-aeadf42d-2385-4da8-bba1-bfa4301499bd.png'} objectFit="cover"/>
       </Box>
       <Box width='100%' display='flex' flexDirection='column' justifyContent='center' back='true'>
         <div>
@@ -48,9 +107,9 @@ const Login = () => {
                     </InputGroup>
                   </div>
                 </FormControl>
-                <Button size='lg' marginTop='8' width='200px' colorScheme='blue' onClick={() => logInWithEmail(uname, password)}
-                  isLoading={loading}
-                  loadingText="Logging In"
+                <Button size='lg' marginTop='8' width='200px' colorScheme='blue' onClick={handleLogin}
+                  isLoading={loginLoading}
+                  loadingText="Logging In..."
                 >Login</Button>
               </TabPanel>
               <TabPanel>
@@ -73,7 +132,7 @@ const Login = () => {
                     </InputGroup>
                   </div>
                 </FormControl>
-                <Button size='lg' marginTop='8' width='200px' colorScheme='green' onClick={() => registerWithEmail(name, uname, password)}>Register</Button>
+                <Button size='lg' marginTop='8' width='200px' colorScheme='green' onClick={handleSignup} isLoading={loginLoading} loadingText="Registering...">Register</Button>
               </TabPanel>
             </TabPanels>
           </Tabs>
