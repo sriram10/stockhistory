@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet-async';
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useNavigate } from 'react-router-dom'
-import { auth, db } from '../../firebase'
+import { auth, db } from '../configs/firebaseConfig'
 
 const Dashboard = () => {
     const navigate = useNavigate();
